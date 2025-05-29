@@ -9,7 +9,8 @@ class GestorDrones:
         drone_disponivel = next((d for d in self.drones if d.ocorrencia_atual is None), None)
         if drone_disponivel:
             msg = drone_disponivel.despachar_para(ocorrencia)
-            self.historico.append((ocorrencia, drone_disponivel.id, drone_disponivel.tempo_resposta))
+            ocorrencia.tempo_resposta = drone_disponivel.tempo_resposta
+            self.historico.append(ocorrencia)
             return msg
         else:
             return "Nenhum drone disponível no momento."

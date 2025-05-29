@@ -5,6 +5,9 @@ class GestorOcorrencias:
     def adicionar_ocorrencia(self, ocorrencia):
         self.historico_ocorrencias.append(ocorrencia)
 
+    def listar_ocorrencias(self):
+        return self.historico_ocorrencias
+
     def filtrar_ocorrencias(self, filtro):
         resultado = []
         for ocorrencia in self.historico_ocorrencias:

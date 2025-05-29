@@ -1,5 +1,3 @@
-from collections import defaultdict
-
 class AnalisePreditiva:
     def __init__(self, historico):
         self.historico = historico

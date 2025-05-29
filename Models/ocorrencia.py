@@ -1,6 +1,7 @@
 class Ocorrencia:
     def __init__(self, id, localizacao, intensidade, causa, clima, vegetacao, temperatura, umidade, vento):
         self.id = id
+        self.status = "Pendente"
         self.localizacao = localizacao
         self.intensidade = intensidade  # escala de 1 a 10
         self.causa = causa
