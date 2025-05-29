@@ -15,7 +15,7 @@ class Drone:
         dist = abs(hash(self.localizacao_base) - hash(ocorrencia.localizacao)) % 20 + 1
         # Severidade influencia na velocidade (maior severidade = menor tempo)
         fator_urgencia = 11 - ocorrencia.severidade  # severidade 10 → fator 1 (mais rápido)
-        tempo = dist + fator_urgencia  # tempo final mínimo controlado pela severidade
+        tempo = dist + fator_urgencia / 1.5  # tempo final mínimo controlado pela severidade
         return max(2, int(tempo))
 
     def concluir_missao(self):

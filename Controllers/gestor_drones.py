@@ -1,8 +1,8 @@
 from Models.drone import Drone
 
 class GestorDrones:
-    def __init__(self, num_drones=3):
-        self.drones = [Drone(i + 1, f"Base_{i+1}") for i in range(num_drones)]
+    def __init__(self, num_drones = 5):
+        self.drones = [Drone(i + 1, f"Base_{i + 1}") for i in range(num_drones)]
         self.historico = []
 
     def despachar_para_ocorrencia(self, ocorrencia):

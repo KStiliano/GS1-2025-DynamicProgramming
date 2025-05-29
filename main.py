@@ -14,6 +14,20 @@ gerador_relatorios = GeradorRelatorios(historico)
 fila_prioridade = FilaPrioridadeOcorrencias()
 analise = AnalisePreditiva(historico)
 
+# Lista de ocorrências pré-definidas
+ocorrencias_prontas_base = [
+    ("Manaus", 8, "Natural", "-", "Amazônia", 36, 45, "forte"),
+    ("Belo Horizonte", 5, "Humana/Ilegal", "-", "Mata Atlântica", 30, 40, "moderado"),
+    ("Cuiabá", 7, "Natural", "-", "Cerrado", 40, 20, "forte"),
+    ("Recife", 4, "Desconhecida", "-", "Caatinga", 35, 30, "moderado"),
+    ("Porto Alegre", 3, "Humana/Ilegal", "-", "Pampas", 32, 50, "leve"),
+    ("Rio de Janeiro", 9, "Humana/Ilegal", "-", "Mata Atlântica", 38, 60, "leve"),
+    ("Fortaleza", 10, "Desconhecida", "-", "Caatinga", 41, 10, "forte"),
+    ("São Paulo", 2, "Natural", "-", "Área Urbana", 25, 90, "moderado"),
+    ("Curitiba", 1, "Humana/Ilegal", "-", "Área Urbana", 10, 75, "moderado"),
+    ("Salvador", 6, "Natural", "-", "Caatinga", 33, 35, "moderado")
+]
+
 def exibir_menu():
     print("\n🚨 Bem-vindo ao IgnisControlSIM 🚨")
     print("1. Inserir ocorrência manualmente")
@@ -27,7 +41,7 @@ def exibir_menu():
 
 def inserir_ocorrencia():
     try:
-        id = input("ID da ocorrência: ")
+        id = str(len(gestor.listar_ocorrencias()) + 1)
         local = input("Localização: ")
         intensidade = int(input("Intensidade do fogo (1-10): "))
         causa = input("Causa: ")
@@ -43,15 +57,25 @@ def inserir_ocorrencia():
     except Exception as e:
         print(f"❌ Erro ao registrar ocorrência: {e}")
 
-def simular_ocorrencia_aleatoria():
-    ocorrencias_prontas = [
-        Ocorrencia("1", "Manaus", 8, "Natural", "-", "Amazônia", 42, 15, "forte"),
-        Ocorrencia("2", "Campinas", 5, "Humana", "-", "Mata Atlântica", 38, 25, "moderado"),
-        Ocorrencia("3", "Cuiabá", 7, "Natural", "-", "Cerrado", 40, 20, "forte"),
-        Ocorrencia("4", "Recife", 4, "Desconhecida", "-", "Caatinga", 35, 30, "moderado"),
-        Ocorrencia("5", "Porto Alegre", 6, "Humana", "-", "Pampas", 32, 50, "leve")
-    ]
-    ocorrencia = random.choice(ocorrencias_prontas)
+def simular_ocorrencia_aleatoria(gestor):
+    global ocorrencias_prontas_base
+    if not ocorrencias_prontas_base:
+        print("Todas as ocorrências pré-definidas já foram utilizadas.")
+        return
+    id_base = len(gestor.listar_ocorrencias()) + 1
+    escolhida = random.choice(ocorrencias_prontas_base)
+    ocorrencias_prontas_base.remove(escolhida)  # remove ocorrência para não haver repetição
+    ocorrencia = Ocorrencia(
+        str(id_base),
+        escolhida[0],  # local
+        escolhida[1],  # intensidade
+        escolhida[2],  # causa
+        escolhida[3],  # observacoes
+        escolhida[4],  # vegetacao
+        escolhida[5],  # temperatura
+        escolhida[6],  # umidade
+        escolhida[7]  # vento
+    )
     gestor.adicionar_ocorrencia(ocorrencia)
     fila_prioridade.inserir_ocorrencia(ocorrencia)
     print(f"⚠ Ocorrência simulada em {ocorrencia.localizacao} (Severidade: {ocorrencia.severidade:.2f}/10)")
@@ -116,7 +140,7 @@ def main():
         if escolha == "1":
             inserir_ocorrencia()
         elif escolha == "2":
-            simular_ocorrencia_aleatoria()
+            simular_ocorrencia_aleatoria(gestor)
         elif escolha == "3":
             listar_ocorrencias()
         elif escolha == "4":
