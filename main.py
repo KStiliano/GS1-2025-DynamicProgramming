@@ -3,21 +3,26 @@ from Models.ocorrencia import Ocorrencia
 from Controllers.gestor_ocorrencia import GestorOcorrencias
 from Controllers.gestor_drones import GestorDrones
 from Controllers.relatorio import GeradorRelatorios
+from Controllers.analise import AnalisePreditiva
 from Utils.estruturas import FilaPrioridadeOcorrencias
 
+# Instâncias principais
 gestor = GestorOcorrencias()
 gestor_drones = GestorDrones()
-historico = gestor.listar_ocorrencias()
+historico = gestor_drones.listar_historico()
 gerador_relatorios = GeradorRelatorios(historico)
 fila_prioridade = FilaPrioridadeOcorrencias()
+analise = AnalisePreditiva(historico)
 
 def exibir_menu():
     print("\n🚨 Bem-vindo ao IgnisControlSIM 🚨")
     print("1. Inserir ocorrência manualmente")
     print("2. Simular ocorrência aleatória")
     print("3. Listar ocorrências registradas")
-    print("4. Atender ocorrência")
-    print("5. Gerar relatório de combate")
+    print("4. Filtrar ocorrências")
+    print("5. Atender ocorrência")
+    print("6. Gerar relatório de combate")
+    print("7. Análise preditiva de risco")
     print("0. Sair")
 
 def inserir_ocorrencia():
@@ -57,42 +62,76 @@ def listar_ocorrencias():
         print("📭 Nenhuma ocorrência registrada.")
         return
     for o in ocorrencias:
-        print(f"📌 ID: {o.id} | Local: {o.localizacao} | Severidade: {o.severidade:.2f}/10 | Status: {o.status}")
+        print(f"📌 ID: {o.id} | Local: {o.localizacao} | Severidade: {o.severidade:.2f} | Status: {o.status}")
 
 def atender_ocorrencia():
     if fila_prioridade.esta_vazia():
-        print("🔕 Nenhuma ocorrência pendente.")
+        print("🚫 Nenhuma ocorrência na fila de prioridade.")
         return
-
     ocorrencia = fila_prioridade.proxima_ocorrencia()
-    msg = gestor_drones.despachar_para_ocorrencia(ocorrencia)
-    ocorrencia.status = "Resolvida"
-    ocorrencia.tempo_resposta = ocorrencia.severidade  # ou outro cálculo
-    print(f"🚁 {msg}")
+    resposta = gestor_drones.despachar_para_ocorrencia(ocorrencia)
+    ocorrencia.status = "Em andamento"
+    print(resposta)
 
 def gerar_relatorio():
-    ocorrencias = gestor.listar_ocorrencias()
-    relatorio = gerador_relatorios.gerar_relatorio()
+    gerador_relatorios.gerar_relatorio()
+
+def executar_analise():
+    try:
+        temperatura = float(input("Temperatura (°C): "))
+        umidade = float(input("Umidade (%): "))
+        tipo_vegetacao = input("Tipo de vegetação: ")
+        analise.gerar_relatorio_de_risco(temperatura, umidade, tipo_vegetacao)
+    except Exception as e:
+        print(f"❌ Erro na análise preditiva: {e}")
+
+def filtrar_ocorrencias():
+    print("\n🔍 Filtro de Ocorrências")
+    vegetacao = input("Filtrar por vegetação (ou pressione Enter para ignorar): ")
+    severidade = input("Filtrar por severidade exata (ou pressione Enter para ignorar): ")
+    status = input("Filtrar por status (ou pressione Enter para ignorar): ")
+
+    try:
+        severidade = float(severidade) if severidade else None
+    except:
+        print("❌ Severidade inválida. Ignorando filtro.")
+        severidade = None
+    filtro = {
+        "vegetacao": vegetacao if vegetacao else None,
+        "severidade": severidade,
+        "status": status if status else None
+    }
+    resultados = gestor.filtrar_ocorrencias(filtro)
+    if not resultados:
+        print("⚠️ Nenhuma ocorrência encontrada com os critérios informados.")
+    else:
+        print(f"\n📌 {len(resultados)} ocorrência(s) encontrada(s):")
+        for o in resultados:
+            print(f"ID: {o.id} | Local: {o.localizacao} | Vegetação: {o.vegetacao} | Severidade: {o.severidade} | Status: {o.status}")
 
 def main():
     while True:
         exibir_menu()
-        opcao = input("Escolha uma opção: ")
-        if opcao == "1":
+        escolha = input("\nEscolha uma opção: ")
+        if escolha == "1":
             inserir_ocorrencia()
-        elif opcao == "2":
+        elif escolha == "2":
             simular_ocorrencia_aleatoria()
-        elif opcao == "3":
+        elif escolha == "3":
             listar_ocorrencias()
-        elif opcao == "4":
+        elif escolha == "4":
+            filtrar_ocorrencias()
+        elif escolha == "5":
             atender_ocorrencia()
-        elif opcao == "5":
+        elif escolha == "6":
             gerar_relatorio()
-        elif opcao == "0":
-            print("👋 Encerrando o sistema IgnisControlSIM.")
+        elif escolha == "7":
+            executar_analise()
+        elif escolha == "0":
+            print("Encerrando o sistema...")
             break
         else:
-            print("❗ Opção inválida. Tente novamente.")
+            print("❌ Opção inválida. Tente novamente.")
 
 if __name__ == "__main__":
     main()

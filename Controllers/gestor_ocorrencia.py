@@ -12,8 +12,7 @@ class GestorOcorrencias:
         resultado = []
         for ocorrencia in self.historico_ocorrencias:
             if (
-                (not filtro.get("regiao") or ocorrencia.regiao.lower() == filtro["regiao"].lower())
-                and (not filtro.get("vegetacao") or ocorrencia.tipo_vegetacao.lower() == filtro["vegetacao"].lower())
+                (not filtro.get("vegetacao") or ocorrencia.vegetacao.lower() == filtro["vegetacao"].lower())
                 and (not filtro.get("severidade") or ocorrencia.severidade == filtro["severidade"])
                 and (not filtro.get("status") or ocorrencia.status.lower() == filtro["status"].lower())
             ):
