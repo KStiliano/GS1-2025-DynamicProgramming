@@ -8,17 +8,21 @@ class Drone:
     def despachar_para(self, ocorrencia):
         self.ocorrencia_atual = ocorrencia
         self.tempo_resposta = self.calcular_tempo_resposta(ocorrencia)
-        return f"Drone {self.id} despachado para {ocorrencia.localizacao} (tempo estimado: {self.tempo_resposta} min)"
+        return f"🚁 Drone {self.id} despachado para {ocorrencia.localizacao} (tempo estimado: {self.tempo_resposta} min)"
 
     def calcular_tempo_resposta(self, ocorrencia):
-        # Distância simulada (0 a 20)
-        dist = abs(hash(self.localizacao_base) - hash(ocorrencia.localizacao)) % 20 + 1
+        # Distância simulada
+        dist = abs(hash(self.localizacao_base) - hash(ocorrencia.localizacao)) % 10 + 1
+        severidade = ocorrencia.severidade
         # Severidade influencia na velocidade (maior severidade = menor tempo)
-        fator_urgencia = 11 - ocorrencia.severidade  # severidade 10 → fator 1 (mais rápido)
-        tempo = dist + fator_urgencia / 1.5  # tempo final mínimo controlado pela severidade
+        fator_urgencia = (11 - severidade) ** 1.5
+        tempo = dist + fator_urgencia
         return max(2, int(tempo))
 
     def concluir_missao(self):
-        msg = f"Drone {self.id} concluiu missão em {self.ocorrencia_atual.localizacao}."
-        self.ocorrencia_atual = None
-        return msg
+        if self.ocorrencia_atual:
+            self.ocorrencia_atual.status = "Concluída"
+            msg = f"✅ Drone {self.id} concluiu missão em {self.ocorrencia_atual.localizacao}."
+            self.ocorrencia_atual = None
+            return msg
+        return f"Drone {self.id} não possui missão em andamento."

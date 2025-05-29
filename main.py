@@ -15,7 +15,7 @@ fila_prioridade = FilaPrioridadeOcorrencias()
 analise = AnalisePreditiva(historico)
 
 # Lista de ocorrências pré-definidas
-ocorrencias_prontas_base = [
+ocorrencias_prontas = [
     ("Manaus", 8, "Natural", "-", "Amazônia", 36, 45, "forte"),
     ("Belo Horizonte", 5, "Humana/Ilegal", "-", "Mata Atlântica", 30, 40, "moderado"),
     ("Cuiabá", 7, "Natural", "-", "Cerrado", 40, 20, "forte"),
@@ -58,13 +58,13 @@ def inserir_ocorrencia():
         print(f"❌ Erro ao registrar ocorrência: {e}")
 
 def simular_ocorrencia_aleatoria(gestor):
-    global ocorrencias_prontas_base
-    if not ocorrencias_prontas_base:
+    global ocorrencias_prontas
+    if not ocorrencias_prontas:
         print("Todas as ocorrências pré-definidas já foram utilizadas.")
         return
     id_base = len(gestor.listar_ocorrencias()) + 1
-    escolhida = random.choice(ocorrencias_prontas_base)
-    ocorrencias_prontas_base.remove(escolhida)  # remove ocorrência para não haver repetição
+    escolhida = random.choice(ocorrencias_prontas)
+    ocorrencias_prontas.remove(escolhida)  # remove ocorrência para não haver repetição
     ocorrencia = Ocorrencia(
         str(id_base),
         escolhida[0],  # local
@@ -98,6 +98,10 @@ def atender_ocorrencia():
     print(resposta)
 
 def gerar_relatorio():
+    print("\n🔄 Encerrando todas as ocorrências em andamento...")
+    encerramentos = gestor_drones.encerrar_ocorrencias()
+    for msg in encerramentos:
+        print(msg)
     gerador_relatorios.gerar_relatorio()
 
 def executar_analise():
