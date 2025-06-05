@@ -1,33 +1,44 @@
 class AnalisePreditiva:
     def __init__(self, historico):
         self.historico = historico
+        self.cache = {}
 
     def calcular_risco(self, temperatura, umidade, tipo_vegetacao):
-        risco = 0
-        # Fatores baseados em regras simples (escalados até 10)
-        if temperatura >= 35:
-            risco += 3
-        elif temperatura >= 28:
-            risco += 2
-        else:
-            risco += 1
-        if umidade < 20:
-            risco += 3
-        elif umidade < 40:
-            risco += 2
-        elif umidade < 60:
-            risco += 1
+        chave = (round(temperatura, 1), round(umidade, 1), tipo_vegetacao.lower())
+        if chave in self.cache:
+            return self.cache[chave]
 
-        vegetacao_fator = {
-            "área urbana": 1,
-            "pampas": 1,
-            "caatinga": 2,
-            "cerrado": 2,
-            "mata atlântica": 3,
-            "amazônia": 3
-        }
-        risco += vegetacao_fator.get(tipo_vegetacao.lower(), 2)
-        return min(risco, 10)  # Cap no máximo em 10
+        def risco_rec(temperatura, umidade, vegetacao):
+            if temperatura < 28:
+                risco_temp = 1
+            elif temperatura < 35:
+                risco_temp = 2
+            else:
+                risco_temp = 3
+            if umidade < 25:
+                risco_umid = 3
+            elif umidade < 40:
+                risco_umid = 2
+            elif umidade < 60:
+                risco_umid = 1
+            else:
+                risco_umid = 0
+                
+            vegetacao_fator = {
+                "área urbana": 1,
+                "pampas": 1,
+                "caatinga": 2,
+                "cerrado": 2,
+                "mata atlântica": 3,
+                "amazônia": 3
+            }
+            
+            risco_veg = vegetacao_fator.get(vegetacao, 2)
+            total = risco_temp + risco_umid + risco_veg
+            return min(total, 10)
+        resultado = risco_rec(temperatura, umidade, tipo_vegetacao.lower())
+        self.cache[chave] = resultado
+        return resultado
 
     def gerar_relatorio_de_risco(self, temperatura, umidade, tipo_vegetacao):
         risco = self.calcular_risco(temperatura, umidade, tipo_vegetacao)
@@ -44,7 +55,7 @@ class AnalisePreditiva:
         elif risco >= 4:
             print("⚠️ Risco MODERADO. Atenção recomendada.")
         elif risco >= 2:
-            print("✅ Risco BAIXO. Atenção opicional.")
+            print("✅ Risco BAIXO. Atenção opcional.")
         else:
             print("✅ Risco MÍNIMO. Condições controladas.")
         print("-" * 50)
